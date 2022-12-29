@@ -1,0 +1,77 @@
+import com.sap.gateway.ip.core.customdev.util.Message;
+import java.util.HashMap;
+import groovy.json.*;
+
+def Message processData(Message message){           
+
+def body = message.getBody(String)
+        def jsonParser = new JsonSlurper()
+        def jsonObj = jsonParser.parseText(body)
+       
+        def builder = new JsonBuilder()
+        def array = []
+        int a = 0
+        def d = builder {
+            "d" array
+        }
+        for (int i = 0; i< jsonObj.d.results.size(); i++){
+
+       def json = builder {
+           try{
+           "Nome" jsonObj.d.results[i].personNav.personalInfoNav.results[0].firstName
+           
+           "Sobrenome" jsonObj.d.results[i].personNav.personalInfoNav.results[0].lastName
+           
+           " Raça " jsonObj.d.results[i].personNav.personalInfoNav.results[0].localNavBRA.genericNumber1Nav.localeLabel
+       
+           if (jsonObj.d.results[i].personNav.personalInfoNav.results[0].gender == "F")
+            {
+               "genero" jsonObj.d.results[i].personNav.personalInfoNav.results[0].gender = "FEMININO"
+            }
+         else if (jsonObj.d.results[i].personNav.personalInfoNav.results[0].gender == "M")
+             {
+             "genero" jsonObj.d.results[i].personNav.personalInfoNav.results[0].gender = "MASCULINO"
+             }
+              "email"{ 
+                  for (int ii = 0; ii< jsonObj.d.results[a].personNav.emailNav.results.size(); ii++){
+                  
+                     if (jsonObj.d.results[a].personNav.emailNav.results.size() == 0){
+                      
+
+                  } 
+                  
+                      "email_$ii" jsonObj.d.results[a].personNav.emailNav.results[ii].emailAddress
+
+                      
+                  
+                
+                
+                 }
+                 a++
+              }
+       }catch(Exception){
+           println "erro na posição $i"
+       }
+
+       }  
+            
+            
+           
+        
+
+    array.add(json)
+       
+    }
+    
+    
+
+  //  println array
+
+ //   println JsonOutput.prettyPrint(JsonOutput.toJson(array))
+
+   // message.setHeader("Content-Type", "application/json")
+                   
+    message.setBody(JsonOutput.prettyPrint(JsonOutput.toJson(d)))
+    
+   return message;
+}
